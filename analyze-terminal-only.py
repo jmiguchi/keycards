@@ -3,7 +3,7 @@ import csv
 import datetime
 
 # Specify the csv file to analyze
-filename = "event-log.csv"
+filename = "sample-event-log.csv"
 
 # Initialize our lists and counters for events we want to identify
 fields = [] 
