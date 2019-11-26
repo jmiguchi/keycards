@@ -1,1 +1,1 @@
-# keycards
+With the key card log (.csv) in the same directory, run `python3 analyze-append-master.py` to create a `master-log.txt` file containing event details and/or to append to the same. Or run `python3 analyze-terminal-only.py` to view log analysis in the terminal only.
