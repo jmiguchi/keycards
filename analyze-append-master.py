@@ -61,27 +61,36 @@ with open(filename, 'r') as csvfile:
             counterTempCardUsers.append(row)
 
     # Write (append) all results below to the master log
+
+    f = open("master-log.txt", "a")
+
     from datetime import datetime
-    print("\n* * * * * * * Log Analysis Dated:", datetime.now(), "* * * * * * *", file=open("master-log.txt", "a"))
+    print("\n* * * * * * * Log Analysis Dated:", datetime.now(), "* * * * * * *", file=f)
 
-    print("\nName of log file: ", os.path.basename("/Users/jamieiguchi/projects/python/keycards/event-log.csv"), file=open("master-log.txt", "a"))
+    print("\nName of log file: ", os.path.basename("/Users/jamieiguchi/projects/python/keycards/sample-event-log.csv"), file=f) # your file path goes here
     
-    print("\nThis log contains %d events"%(csvreader.line_num), file=open("master-log.txt", "a"))
+    print("\nThis log contains %d events"%(csvreader.line_num), file=f)
 
-    print("\nThe number of times a user was denied access is: ", len(counterUserDeniedAccess), file=open("master-log.txt", "a"))
+    # TODO: Add date range by picking earliest and latest dates from CSV file to report
+    print("\nEvent date range: ", file=f)
+
+
+    print("\nThe number of times a user was denied access is: ", len(counterUserDeniedAccess), file=f)
     for elem in counterUserDeniedAccess:
-        print(elem, file=open("master-log.txt", "a"))
+        print(elem, file=f)
 
-    print("\nThe number of times an entry attempt was denied is: ", len(counterEntryAttemptDenied), file=open("master-log.txt", "a"))
+    print("\nThe number of times an entry attempt was denied is: ", len(counterEntryAttemptDenied), file=f)
     for elem in counterEntryAttemptDenied:
-        print(elem, file=open("master-log.txt", "a"))
+        print(elem, file=f)
     
-    print("\nThe number of access events outside of business hours is: ", len(counterOutsideBusinessHours), file=open("master-log.txt", "a"))
+    print("\nThe number of access events outside of business hours is: ", len(counterOutsideBusinessHours), file=f)
     for elem in counterOutsideBusinessHours:
-        print(elem, file=open("master-log.txt", "a"))
+        print(elem, file=f)
     
-    print("\nThe number of times a temp card user gained access is: ", len(counterTempCardUsers), file=open("master-log.txt", "a"))
+    print("\nThe number of times a temp card user gained access is: ", len(counterTempCardUsers), file=f)
     for elem in counterTempCardUsers:
-        print(elem, file=open("master-log.txt", "a"))
+        print(elem, file=f)
     
-    print("\n\n", file=open("master-log.txt", "a"))
+    print("\n\n", file=f)
+
+    f.close()
