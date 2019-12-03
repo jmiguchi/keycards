@@ -12,6 +12,9 @@ counterUserDeniedAccess = []
 counterEntryAttemptDenied = []
 counterOutsideBusinessHours = []
 counterTempCardUsers = []
+datetimeList = []
+earliestDateTime = []
+latestDateTime = []
 
 # Specify the events and users we are looking for
 eventUserDeniedAccess = "User Denied Access"
@@ -62,6 +65,17 @@ with open(filename, 'r') as csvfile:
     for row in rows:
         if userTempCard in row[3]:
             counterTempCardUsers.append(row)
+    
+    # Convert dates to datetime objects and store to list for min/max picking
+    for row in rows:
+        date = row[0]
+        d = datetime.datetime.strptime(date, '%m/%d/%y')
+        new_date = d.strftime('%m/%d/%y')
+        datetimeList.append(new_date)
+    
+    # Store min and max of datetimeList into earliestDateTime and latestDateTime
+    earliestDateTime = min(datetimeList)
+    latestDateTime = max(datetimeList)
 
     # Log the results
     from datetime import datetime
@@ -70,6 +84,8 @@ with open(filename, 'r') as csvfile:
     print("\nName of log file: ", os.path.basename("/Users/jamieiguchi/projects/python/keycards/event-log.csv"))
     
     print("\nThis log contains %d events"%(csvreader.line_num))
+
+    print("\nEvent date range:", earliestDateTime, "to", latestDateTime)
 
     print("\nThe number of times a user was denied access is: ", len(counterUserDeniedAccess))
     for elem in counterUserDeniedAccess:

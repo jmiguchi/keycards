@@ -12,6 +12,9 @@ counterUserDeniedAccess = []
 counterEntryAttemptDenied = []
 counterOutsideBusinessHours = []
 counterTempCardUsers = []
+datetimeList = []
+earliestDateTime = []
+latestDateTime = []
 
 # Specify the events and users we are looking for
 eventUserDeniedAccess = "User Denied Access"
@@ -60,6 +63,17 @@ with open(filename, 'r') as csvfile:
         if userTempCard in row[3]:
             counterTempCardUsers.append(row)
 
+    # Convert dates to datetime objects and store to list for min/max picking
+    for row in rows:
+        date = row[0]
+        d = datetime.datetime.strptime(date, '%m/%d/%y')
+        new_date = d.strftime('%m/%d/%y')
+        datetimeList.append(new_date)
+    
+    # Store min and max of datetimeList into earliestDateTime and latestDateTime
+    earliestDateTime = min(datetimeList)
+    latestDateTime = max(datetimeList)
+
     # Write (append) all results below to the master log
 
     f = open("master-log.txt", "a")
@@ -71,9 +85,7 @@ with open(filename, 'r') as csvfile:
     
     print("\nThis log contains %d events"%(csvreader.line_num), file=f)
 
-    # TODO: Add date range by picking earliest and latest dates from CSV file to report
-    print("\nEvent date range: ", file=f)
-
+    print("\nEvent date range:", earliestDateTime, "to", latestDateTime, file=f)
 
     print("\nThe number of times a user was denied access is: ", len(counterUserDeniedAccess), file=f)
     for elem in counterUserDeniedAccess:
