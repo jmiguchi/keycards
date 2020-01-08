@@ -3,7 +3,7 @@ import csv
 import datetime
 
 # Specify the original csv file to analyze
-filename = "2020-01-06 Event Log ETPDLN [Submittable - F3].csv"
+filename = "sample-event-log.csv"
 
 
 # TODO: add ability to specify a date range for analysis. This is needed because the keycard software doesn't let you export data by date (it only exports by number of records)
@@ -27,9 +27,6 @@ eventEntryAttemptDenied = "Entry Attempt Denied"
 userTempCard = "Temp Card"
 timeLate = ["19", "20"] # this is suuuper janky, but whatev
 timeExtraLate = ["21", "22", "23", "00", "01", "02", "03"] # more jankiness, but these are the hours of 9:00 pm through 3:59 am
-
-# Initialize new file to be created
-f = open("newfile.txt", "a+")
 
 # Read the csv file and log results
 with open(filename, 'r') as csvfile:
