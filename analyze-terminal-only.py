@@ -3,33 +3,31 @@ import csv
 import datetime
 
 # Specify the original csv file to analyze
-filename = "sample-event-log.csv"
+LOG_FILE = "sample-event-log.csv"
+LOG_FILE_PATH = "<YOUR PATH HERE>"
 
+# Specify desired date range to anlayze, since the key card manufacturer's software does not allow for exporting logs by date (we can only export logs per number of records)
+FROM_DATE = "11/14/19"
+TO_DATE = "11/20/19"
 
-# TODO: add ability to specify a date range for analysis. This is needed because the keycard software doesn't let you export data by date (it only exports by number of records)
-
+# Specify the events and users we are looking for
+USER_DENIED_ACCESS = "User Denied Access"
+ENTRY_ATTEMPT_DENIED = "Entry Attempt Denied"
+TEMP_CARD = "Temp Card"
+LATE_TIME = ["19", "20"] # this is suuuper janky, but whatev
+VERY_LATE_TIME = ["21", "22", "23", "00", "01", "02", "03"] # more jankiness, but these are the hours of 9:00 pm through 3:59 am
 
 # Initialize our lists and counters for events we want to identify
 rows = []
-counterUserDeniedAccess = []
-counterEntryAttemptDenied = []
-counterTimeLate = []
-counterTimeExtraLate = []
-counterTempCardEvents = []
-counterUniqueTempCards = []
-datetimeList = []
-earliestDateTime = []
-latestDateTime = []
-
-# Specify the events and users we are looking for
-eventUserDeniedAccess = "User Denied Access"
-eventEntryAttemptDenied = "Entry Attempt Denied"
-userTempCard = "Temp Card"
-timeLate = ["19", "20"] # this is suuuper janky, but whatev
-timeExtraLate = ["21", "22", "23", "00", "01", "02", "03"] # more jankiness, but these are the hours of 9:00 pm through 3:59 am
+known_users_denied = []
+unknown_persons_denied = []
+late_entries = [] #for events occurring from 7:00 pm to 8:59 pm
+very_late_entries = [] #for events occurring from 9:00 p m to 3:59 am
+temp_card_events = []
+temp_cards_used = []
 
 # Read the csv file and log results
-with open(filename, 'r') as csvfile:
+with open(LOG_FILE, 'r') as csvfile:
 
     # Create a csv reader object
     csvreader = csv.reader(csvfile, delimiter=',')
@@ -39,17 +37,21 @@ with open(filename, 'r') as csvfile:
 
     # Extract each data row, one by one
     for row in csvreader:
-        rows.append(row)
+        from datetime import date
+        date = row[0]
+        d = datetime.datetime.strptime(date, "%m/%d/%y")
+        if (date >= FROM_DATE) & (date <= TO_DATE):
+            rows.append(row)
 
     # Store rows that contain User Denied Access, but exclude Temp Install (admin) events
     for row in rows:
-        if (eventUserDeniedAccess in row[4]) & (row[3] != ' Temp Install'):
-            counterUserDeniedAccess.append(row)
+        if (USER_DENIED_ACCESS in row[4]) & (row[3] != ' Temp Install'):
+            known_users_denied.append(row)
 
     # Store rows that contain Entry Attempt Denied
     for row in rows:
-        if eventEntryAttemptDenied in row[4]:
-            counterEntryAttemptDenied.append(row)
+        if ENTRY_ATTEMPT_DENIED in row[4]:
+            unknown_persons_denied.append(row)
 
     # Store rows that contain entries outside of work hours
     for row in rows:
@@ -60,83 +62,62 @@ with open(filename, 'r') as csvfile:
         # Pick out the only piece we care about, which is the hour
         new_time = d.strftime('%H')
         # Check the hour against the list of weird entry times and add only if the entry is NOT a system reserved date stamp
-        for elem in timeLate:
+        for elem in LATE_TIME:
             if (elem == new_time) & (row[4] != ' Reserved Date Stamp'):
-                counterTimeLate.append(row)
+                late_entries.append(row)
         # Check the hour against the list of extra unusual entry times and add only if the entry is NOT a system reserved date stamp (which is only there to facilitate human reading the bare csv printout top to bottom)
-        for elem in timeExtraLate:
+        for elem in VERY_LATE_TIME:
             if (elem == new_time) & (row[4] != ' Reserved Date Stamp'):
-                counterTimeExtraLate.append(row)       
+                very_late_entries.append(row)       
 
     # Store Temp Card events
     for row in rows:
-        if userTempCard in row[3]:
-            counterTempCardEvents.append(row)
+        if TEMP_CARD in row[3]:
+            temp_card_events.append(row)
     
     # Store temp card numbers
-    for elem in counterTempCardEvents:
-        counterUniqueTempCards.append(elem[2])
-
-
-    # Convert dates to datetime objects and store to list for min/max picking
-    for row in rows:
-        date = row[0]
-        d = datetime.datetime.strptime(date, '%m/%d/%y')
-        new_date = d.strftime('%m/%d/%y')
-        datetimeList.append(new_date)
-    
-    # Store min and max of datetimeList into earliestDateTime and latestDateTime
-    earliestDateTime = min(datetimeList)
-    latestDateTime = max(datetimeList)
+    for elem in temp_card_events:
+        temp_cards_used.append(elem[2])
 
 
     # Log the results
     from datetime import datetime
     print("\n* * * * * * * Log Report Dated:", datetime.now(), "* * * * * * *")
 
-    print("\nName of log file: ", os.path.basename("/Users/jamieiguchi/projects/python/keycards/2020-01-06 Event Log ETPDLN [Submittable - F3].csv"))
-    
-    print("\nThis log contains %d events"%(csvreader.line_num))
+    print("\nName of log file: ", os.path.basename(LOG_FILE_PATH))
 
-    print("\nLog date range:", earliestDateTime, "to", latestDateTime)
+    print("\nSelected date range:", FROM_DATE, "to", TO_DATE)
 
-    print("\nSelected date range for this report:", ) #TODO - add date range
+    print("\nThis date range contains %d events"%(csvreader.line_num))
 
-    print("\nThe temp cards used during this period were:", set(counterUniqueTempCards))
+    print("\nThe temp cards used during this period were:", set(temp_cards_used))
 
-    print("\nThe number of events that occurred between 7:00 pm and 8:59 pm is: ", len(counterTimeLate))
-    print("These events were:")
-    for elem in counterTimeLate:
+    print("\nThe number of events that occurred between 7:00 pm and 8:59 pm is: ", len(late_entries))
+    if len(late_entries) > 0:
+        print("These events were:")
+    for elem in late_entries:
         print(elem)
     
-    print("\nThe number of events that occurred between 9:00 pm and 3:59 am is: ", len(counterTimeExtraLate))
-    print("These events were:")
-    for elem in counterTimeExtraLate:
+    print("\nThe number of events that occurred between 9:00 pm and 3:59 am is: ", len(very_late_entries))
+    if len(very_late_entries) > 0:
+        print("These events were:")
+    for elem in very_late_entries:
         print(elem)
 
-    print("\nThe number of times an active, assigned card was denied access is: ", len(counterUserDeniedAccess))
-    print("These events were:")
-    for elem in counterUserDeniedAccess:
+    print("\nThe number of times an active, assigned card was denied access is: ", len(known_users_denied))
+    if len(known_users_denied) > 0:
+        print("These events were:")
+    for elem in known_users_denied:
         print(elem)
 
-    print("\nThe number of times an incorrect key code was entered is: ", len(counterEntryAttemptDenied))
-    print("These events were:")
-    for elem in counterEntryAttemptDenied:
+    print("\nThe number of times an incorrect key code was entered is: ", len(unknown_persons_denied))
+    if len(unknown_persons_denied) > 0:
+        print("These events were:")
+    for elem in unknown_persons_denied:
         print(elem)
 
-    print("\nThe number of times a temp card user gained access is: ", len(counterTempCardEvents))
-    print("These events were:")
-    for elem in counterTempCardEvents:
+    print("\nThe number of times a temp card user gained access is: ", len(temp_card_events))
+    if len(temp_card_events) > 0:
+        print("These events were:")
+    for elem in temp_card_events:
         print(elem)
-
-
-
-
-
-# Specify a specific date you want to look at (optional)
-# specialDate = '01/06/20'
-
-    # print("\nThese are all events that occurred on the specified date: ")
-    # for row in rows:
-    #     if (row[0] == specialDate):
-    #         print(row)
