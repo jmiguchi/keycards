@@ -3,12 +3,12 @@ import csv
 import datetime
 
 # Specify the original csv file to analyze and its path
-LOG_FILE = "sample-event-log.csv"
+LOG_FILE = "<YOUR FILE NAME>.csv"
 LOG_FILE_PATH = "<YOUR PATH HERE>"
 
 # Specify desired date range to anlayze, since the key card manufacturer's software does not allow for exporting logs by date (it only lets us export by number of records)
-FROM_DATE = "11/14/19"
-TO_DATE = "11/20/19"
+FROM_DATE = "<YOUR START DATE>"
+TO_DATE = "<YOUR END DATE>"
 
 # Specify the events and users we are looking for
 USER_DENIED_ACCESS = "User Denied Access"
@@ -91,7 +91,7 @@ with open(LOG_FILE, 'r') as csvfile:
 
     print("\nSelected date range:", FROM_DATE, "to", TO_DATE, file=f)
 
-    print("\nThis date range contains %d events"%(csvreader.line_num), file=f)
+       print("\nThis date range contains", len(rows), "events", file=f)
 
     print("\nThe temp cards used during this period were:", set(temp_cards_used), file=f)
 
