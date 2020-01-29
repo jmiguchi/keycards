@@ -2,13 +2,13 @@ import os.path, time
 import csv
 import datetime
 
-# Specify the original csv file to analyze and its path
-LOG_FILE = "<YOUR FILE NAME>.csv"
+# Specify the original csv file to analyze
+LOG_FILE = "<YOUR CSV FILE>.csv"
 LOG_FILE_PATH = "<YOUR PATH HERE>"
 
-# Specify desired date range to anlayze, since the key card manufacturer's software does not allow for exporting logs by date (it only lets us export by number of records)
-FROM_DATE = "<YOUR START DATE>"
-TO_DATE = "<YOUR END DATE>"
+# Specify desired date range to anlayze, since the key card manufacturer's software does not allow for exporting logs by date (we can only export logs per number of records)
+FROM_DATE = "<DESIRED START DATE>"
+TO_DATE = "<DESIRED END DATE>"
 
 # Specify the events and users we are looking for
 USER_DENIED_ACCESS = "User Denied Access"
@@ -40,7 +40,7 @@ with open(LOG_FILE, 'r') as csvfile:
         from datetime import date
         date = row[0]
         d = datetime.datetime.strptime(date, "%m/%d/%y")
-        if (date >= FROM_DATE) & (date <= TO_DATE):
+        if ((date >= FROM_DATE) & (date <= TO_DATE)):
             rows.append(row)
 
     # Store rows that contain User Denied Access, but exclude Temp Install (admin) events
