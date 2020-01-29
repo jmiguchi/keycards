@@ -3,12 +3,12 @@ import csv
 import datetime
 
 # Specify the original csv file to analyze
-LOG_FILE = "<YOUR FILE NAME>.csv"
-LOG_FILE_PATH = "<YOUR PATH HERE>"
+LOG_FILE = "sample-event-log2.csv"
+LOG_FILE_PATH = "/Users/jamieiguchi/projects/python/keycards/sample-event-log2.csv"
 
 # Specify desired date range to anlayze, since the key card manufacturer's software does not allow for exporting logs by date (we can only export logs per number of records)
-FROM_DATE = "<YOUR START DATE>"
-TO_DATE = "<YOUR END DATE>"
+FROM_DATE = "01/01/20"
+TO_DATE = "12/31/20"
 
 # Specify the events and users we are looking for
 USER_DENIED_ACCESS = "User Denied Access"
@@ -35,13 +35,14 @@ with open(LOG_FILE, 'r') as csvfile:
     # Skip first row of CSV file because we don't to catch header names for values
     next(csvreader)
 
-    # Extract each data row, one by one
+    # Extract each data row, one by one, EXCEPT for rows lacking dates
     for row in csvreader:
         from datetime import date
-        date = row[0]
-        d = datetime.datetime.strptime(date, "%m/%d/%y")
-        if (date >= FROM_DATE) & (date <= TO_DATE):
-            rows.append(row)
+        my_date = row[0]
+        if row[0] != "":
+            d = datetime.datetime.strptime(my_date, "%m/%d/%y")
+            if ((my_date >= FROM_DATE) & (my_date <= TO_DATE)):
+                rows.append(row)
 
     # Store rows that contain User Denied Access, but exclude Temp Install (admin) events
     for row in rows:
