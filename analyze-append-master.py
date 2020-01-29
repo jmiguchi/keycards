@@ -91,7 +91,7 @@ with open(LOG_FILE, 'r') as csvfile:
 
     print("\nSelected date range:", FROM_DATE, "to", TO_DATE, file=f)
 
-       print("\nThis date range contains", len(rows), "events", file=f)
+    print("\nThis date range contains", len(rows), "events", file=f)
 
     print("\nThe temp cards used during this period were:", set(temp_cards_used), file=f)
 
