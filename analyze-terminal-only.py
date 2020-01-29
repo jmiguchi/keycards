@@ -3,12 +3,12 @@ import csv
 import datetime
 
 # Specify the original csv file to analyze
-LOG_FILE = "sample-event-log2.csv"
-LOG_FILE_PATH = "/Users/jamieiguchi/projects/python/keycards/sample-event-log2.csv"
+LOG_FILE = "<YOUR CSV FILE>.csv"
+LOG_FILE_PATH = "<YOUR PATH HERE>"
 
 # Specify desired date range to anlayze, since the key card manufacturer's software does not allow for exporting logs by date (we can only export logs per number of records)
-FROM_DATE = "01/01/20"
-TO_DATE = "12/31/20"
+FROM_DATE = "<DESIRED START DATE>"
+TO_DATE = "<DESIRED END DATE>"
 
 # Specify the events and users we are looking for
 USER_DENIED_ACCESS = "User Denied Access"
