@@ -1,14 +1,19 @@
 import os.path, time
 import csv
 import datetime
+import ntpath
 
-# Specify the original csv file to analyze
-LOG_FILE = "<YOUR CSV FILE>.csv"
+# Specify the original csv file to analyze and date range you're looking at
 LOG_FILE_PATH = "<YOUR PATH HERE>"
-
-# Specify desired date range to anlayze, since the key card manufacturer's software does not allow for exporting logs by date (we can only export logs per number of records)
 FROM_DATE = "<DESIRED START DATE>"
 TO_DATE = "<DESIRED END DATE>"
+
+# Extract filename from log file path
+def path_leaf(path):
+    ntpath.basename("a/b/c")
+    head, tail = ntpath.split(path)
+    return tail or ntpath.basename(head)
+LOG_FILE = path_leaf(LOG_FILE_PATH)
 
 # Specify the events and users we are looking for
 USER_DENIED_ACCESS = "User Denied Access"
@@ -35,13 +40,15 @@ with open(LOG_FILE, 'r') as csvfile:
     # Skip first row of CSV file because we don't to catch header names for values
     next(csvreader)
 
-    # Extract each data row, one by one, EXCEPT for rows lacking dates
+    # Extract each data row EXCEPT for rows lacking dates
     for row in csvreader:
         from datetime import date
         my_date = row[0]
         if row[0] != "":
             d = datetime.datetime.strptime(my_date, "%m/%d/%y")
-            if ((my_date >= FROM_DATE) & (my_date <= TO_DATE)):
+            d_fromdate = datetime.datetime.strptime(FROM_DATE, "%m/%d/%y")
+            d_todate = datetime.datetime.strptime(TO_DATE, "%m/%d/%y")
+            if (d >= d_fromdate) & (d <= d_todate):
                 rows.append(row)
 
     # Store rows that contain User Denied Access, but exclude Temp Install (admin) events
@@ -114,7 +121,7 @@ with open(LOG_FILE, 'r') as csvfile:
     for elem in known_users_denied:
         print(elem, file=f)
 
-    print("\nThe number of times an incorrect key code was entered is: ", len(unknown_persons_denied), file=f)
+    print("\nThe number of times an incorrect key code or a bad card was swiped is: ", len(unknown_persons_denied), file=f)
     if len(unknown_persons_denied) > 0:
         print("These events were:", file=f)
     for elem in unknown_persons_denied:
