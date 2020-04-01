@@ -18,7 +18,7 @@ LOG_FILE = path_leaf(LOG_FILE_PATH)
 # Specify the events and users we are looking for
 USER_DENIED_ACCESS = "User Denied Access"
 ENTRY_ATTEMPT_DENIED = "Entry Attempt Denied"
-TEMP_CARD = "Temp Card"
+TEMP_CARD_USER = "Temp"
 LATE_TIME = ["19", "20"] # this is suuuper janky, but whatev
 VERY_LATE_TIME = ["21", "22", "23", "00", "01", "02", "03"] # more jankiness, but these are the hours of 9:00 pm through 3:59 am
 
@@ -78,15 +78,14 @@ with open(LOG_FILE, 'r') as csvfile:
             if (elem == new_time) & (row[4] != ' Reserved Date Stamp'):
                 very_late_entries.append(row)       
 
-    # Store Temp Card events
+    # Store Temp Card events but exclude Temp Install events
     for row in rows:
-        if TEMP_CARD in row[3]:
+        if (TEMP_CARD_USER in row[3]) & (row[3] != ' Temp Install'):
             temp_card_events.append(row)
     
     # Store temp card numbers
     for elem in temp_card_events:
         temp_cards_used.append(elem[2])
-
 
     # Log the results
     from datetime import datetime
